@@ -9,17 +9,31 @@
   <url>
     <loc>https://rijexamenmeldingen.be/about</loc>
     <lastmod>2024-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://rijexamenmeldingen.be/contact</loc>
     <lastmod>2024-10-18</lastmod>
-    <changefreq>daily</changefreq>
-    <priority>1.0</priority>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://rijexamenmeldingen.be/assets/algemene-voorwaarden.pdf</loc>
-    <lastmod>2024-08-21</lastmod>
+    <loc>https://rijexamenmeldingen.be/register</loc>
+    <lastmod>2024-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://rijexamenmeldingen.be/login</loc>
+    <lastmod>2024-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://rijexamenmeldingen.be/profile</loc>
+    <lastmod>2024-10-18</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.9</priority>
   </url>
 </urlset>
