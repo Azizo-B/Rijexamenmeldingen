@@ -32,7 +32,7 @@ async def handle_subscription_deleted(repo: BaseRepository, settings: Settings, 
         "subscribers", {"stripe_customer_id": cus}, {"is_subscription_active": False}, SubscriberRead
     )
     discord_user_id = subscriber.discord_user.get("id")
-    if is_user_in_guild(settings.discord_guild_id, discord_user_id, settings.discord_bot_token):
+    if await is_user_in_guild(settings.discord_guild_id, discord_user_id, settings.discord_bot_token):
         await remove_role_from_user(
             settings.discord_guild_id, discord_user_id, DiscordSubscriptionRoles.ACTIVE.value, settings.discord_bot_token
         )
@@ -53,7 +53,7 @@ async def handle_subscription_deleted(repo: BaseRepository, settings: Settings, 
 async def handle_checkout_session_completed(repo: BaseRepository, settings: Settings, session: dict) -> None:
     subscriber: SubscriberRead = await repo.process_checkout_session(session)
     send_email(
-        "Betaling geslaagd! Uw voorkeuren zijn ontvangen.",
+        "Betaling geslaagd!",
         [subscriber.email],
         settings.sender_email,
         settings.sender_password,
