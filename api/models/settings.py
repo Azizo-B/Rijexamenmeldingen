@@ -7,9 +7,9 @@ class Settings(BaseSettings):
     sbat_username: str
     sbat_password: str
 
-    stripe_secret_key: str
-    stripe_publishable_key: str
-    stripe_endpoint_secret: str
+    stripe_secret_key: str | None = None
+    stripe_publishable_key: str | None = None
+    stripe_endpoint_secret: str | None = None
 
     telegram_bot_token: str | None = None
     telegram_chat_id: str | None = None

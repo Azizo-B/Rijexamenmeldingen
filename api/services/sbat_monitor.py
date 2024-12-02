@@ -16,8 +16,6 @@ from ..models.sbat import (
     MonitorStatus,
     SbatRequestCreate,
     SbatRequestRead,
-    ServerResponseTimeCreate,
-    ServerResponseTimeRead,
 )
 from ..models.settings import Settings
 from ..utils import send_discord_message_with_role_mention, send_email, send_telegram_message_to_all
@@ -162,17 +160,7 @@ class SbatMonitor:
             for license_type in self.license_types:
                 for exam_center_id in self.exam_center_ids:
                     exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
-                    start_time: datetime = datetime.now(UTC)
                     response, request_body = await self._perform_check(headers, license_type, exam_center_id, exam_center_name)
-                    end_time: datetime = datetime.now(UTC)
-                    response_size: int = len(response.content) if response.content else 0
-                    await self.repo.create(
-                        "server_response_times",
-                        ServerResponseTimeCreate.model_validate(
-                            {"start": start_time, "end": end_time, "request_body": request_body, "response_size": response_size}
-                        ),
-                        ServerResponseTimeRead,
-                    )
 
                     # possible exp of token
                     if self._is_exp_error(response):

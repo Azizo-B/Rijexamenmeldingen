@@ -10,53 +10,9 @@ The **SBAT Monitoring System** is a Python API designed to monitor and notify us
 
 ## Table of Contents
 
-- [Design Choices](#design-choices)
 - [Getting Started](#getting-started)
-- [API Endpoints](#api-endpoints)
 - [Configuration Options](#configuration-options)
-- [Possible Flow of the API](#possible-flow-of-the-api)
-
-## Design Choices
-
-- ### Distributed Client-Side Requests: Considerations and Ethical Concerns
-
-  #### Potential Idea:
-
-  At one point, I considered an approach where each user's browser would make API requests directly to the SBAT API. The thought was that by distributing the requests across different IPs and devices, it would be possible to get updates more frequently and allow users to see changes faster.
-
-  #### Why I Didn’t Go This Route:
-
-  Ultimately, I decided against this. While it might have worked technically, it raised ethical concerns. Bypassing rate limits through distributed requests could violate the SBAT API's terms of service. It’s important to respect the rules set by API providers to ensure everyone has fair access to the service.
-
-  So, instead of pushing the limits, I stuck to a more straightforward approach that stays within the guidelines and keeps things fair for everyone.
-
-- ### Cost-Effective and Efficient Hosting
-
-  The API is hosted on a Google Cloud E2 micro instance, which falls under Google's free tier. This allows the API to run 24/7 without incurring costs, making it a highly cost-effective solution. The instance is configured with HTTPS, ensuring secure communication between clients and the server.
-
-  The database used is MongoDB, which is also hosted under a free tier plan. This setup allows for efficient storage and retrieval of user data, monitoring logs, and other relevant information without additional costs.
-
-  The frontend is hosted using GitHub Pages, which is also free, providing a simple and efficient way to manage and deploy the user interface.
-
-- ### Payment Processing with Stripe
-
-  Payments for subscriptions and other services are handled using Stripe, a reliable and secure payment processor. This integration allows for smooth handling of transactions, with all payment events being tracked and managed via Stripe webhooks.
-
-- ### Telegram Bot and Webhooks
-
-  The Telegram bot, used for sending notifications, is integrated into the system via webhooks. This ensures that messages are sent and received in real-time, providing users with timely updates on available driving exam slots. Webhooks are also used to handle events from Stripe, ensuring that subscription statuses and payment events are processed immediately.
-
-- ### Repository Pattern Implementation
-
-  To maintain a clean separation of concerns and facilitate easier testing, the repository pattern is employed. This pattern abstracts the data access layer, allowing different data sources (e.g., MongoDB, SQL) to be accessed via a common interface. The repository pattern is implemented through the BaseRepository interface, with concrete implementations like MongoRepository providing specific data access logic. This approach promotes flexibility and maintainability, as changes to the data source or access logic require minimal modifications to the rest of the application.
-
-- ### Singleton Pattern for SbatMonitor
-
-  The `SbatMonitor` class is designed as a singleton. This design choice ensures that only one instance of the monitor is created and shared across the application. This pattern prevents multiple instances from running concurrently, which could lead to conflicting operations. It also simplifies the management and tracking of the monitoring task's state, providing a consistent and controlled environment.
-
-- ### BaseSettings Configuration
-
-  The application uses a `BaseSettings` class for configuration management. This class centralizes the configuration settings, such as SBAT API credentials and notification preferences, in one place. By using `BaseSettings`, the configuration can be easily managed and updated without altering the core application logic. This design choice enhances maintainability and flexibility, making it easier to adapt to changes in configuration requirements.
+- [Design Choices](#design-choices)
 
 ## Getting Started
 
@@ -132,48 +88,6 @@ This section explains how to set up the SBAT Monitoring System on your local mac
    Once the application is running, you can access the API documentation at:
    http://127.0.0.1:8000/docs
 
-## API Endpoints
-
-### NOTE: Always check the API itself for the most up-to-date endpoints.
-
-### Monitoring Endpoints
-
-- **`POST /startup`**
-
-  Starts the monitoring process. Allows updating the monitoring configuration (e.g., `seconds_inbetween` and `license_types`) before starting.
-
-- **`POST /monitor-config`**
-
-  Updates the monitoring configuration and returns the current status of the monitoring task.
-
-- **`GET /monitor-status`**
-
-  Retrieves the current status of the monitoring task.
-
-- **`GET /shutdown`**
-
-  Stops the monitoring process.
-
-### Notification Endpoints
-
-- **`POST /subscribe`**
-
-  Adds an email to the list of subscribers.
-
-- **`POST /unsubscribe`**
-
-  Removes an email from the list of subscribers.
-
-### DB Queries Endpoints
-
-- **`GET /requests`**
-
-  Retrieves all SBAT request records from the database.
-
-- **`GET /exam-time-slots`**
-
-  Retrieves all exam time slot records from the database.
-
 ## Configuration Options
 
 The `MonitorConfiguration` class defines the configuration settings for the SBAT Monitoring System. Below are the available configuration options, their default values, and descriptions:
@@ -207,35 +121,40 @@ Here’s an example of how you might configure the `MonitorConfiguration`:
 }
 ```
 
-## Possible Flow of the API
+## Design Choices
 
-1. **Starting Monitoring**
+- ### Distributed Client-Side Requests: Considerations and Ethical Concerns
 
-   - User sends a `POST` request to `/startup` with the desired configuration.
-   - System initializes or updates the monitoring configuration and starts the monitoring task.
-   - System responds with a success or failure message.
+  #### Potential Idea:
 
-2. **Updating Configuration**
+  At one point, I considered an approach where each user's browser would make API requests directly to the SBAT API. The thought was that by distributing the requests across different IPs and devices, it would be possible to get updates more frequently and allow users to see changes faster.
 
-   - User sends a `POST` request to `/monitor-config` with updated settings.
-   - System updates the configuration and returns the current status of the monitoring task.
+  #### Why I Didn’t Go This Route:
 
-3. **Checking Status**
+  Ultimately, I decided against this. While it might have worked technically, it raised ethical concerns. Bypassing rate limits through distributed requests could violate the SBAT API's terms of service. It’s important to respect the rules set by API providers to ensure everyone has fair access to the service.
 
-   - User sends a `GET` request to `/monitor-status`.
-   - System returns the current status of the monitoring task, including runtime and any exceptions.
+  So, instead of pushing the limits, I stuck to a more straightforward approach that stays within the guidelines and keeps things fair for everyone.
 
-4. **Stopping Monitoring**
+- ### Cost-Effective and Efficient Hosting
 
-   - User sends a `GET` request to `/shutdown`.
-   - System stops the monitoring task and returns a success or failure message.
+  The API is hosted on a Google Cloud E2 micro instance, which falls under Google's free tier. This allows the API to run 24/7 without incurring costs, making it a highly cost-effective solution. The instance is configured with HTTPS, ensuring secure communication between clients and the server.
 
-5. **Managing Subscriptions**
+  The database used is MongoDB, which is also hosted under a free tier plan. This setup allows for efficient storage and retrieval of user data, monitoring logs, and other relevant information without additional costs.
 
-   - User sends `POST` requests to `/subscribe` or `/unsubscribe` to manage email subscriptions.
-   - System updates the subscription list and responds with the success status.
+  The frontend is hosted using GitHub Pages, which is also free, providing a simple and efficient way to manage and deploy the user interface.
 
-6. **Querying the Database**
+- ### Payment Processing with Stripe
 
-   - User sends `GET` requests to `/requests` or `/exam-time-slots` to retrieve records from the database.
-   - System returns the requested data in JSON format.
+  Payments for subscriptions and other services are handled using Stripe, a reliable and secure payment processor. This integration allows for smooth handling of transactions, with all payment events being tracked and managed via Stripe webhooks.
+
+- ### Telegram Bot and Webhooks
+
+  The Telegram bot, used for sending notifications, is integrated into the system via webhooks. This ensures that messages are sent and received in real-time, providing users with timely updates on available driving exam slots. Webhooks are also used to handle events from Stripe, ensuring that subscription statuses and payment events are processed immediately.
+
+- ### Singleton Pattern for SbatMonitor
+
+  The `SbatMonitor` class is designed as a singleton. This design choice ensures that only one instance of the monitor is created and shared across the application. This pattern prevents multiple instances from running concurrently, which could lead to conflicting operations. It also simplifies the management and tracking of the monitoring task's state, providing a consistent and controlled environment.
+
+- ### BaseSettings Configuration
+
+  The application uses a `BaseSettings` class for configuration management. This class centralizes the configuration settings, such as SBAT API credentials and notification preferences, in one place. By using `BaseSettings`, the configuration can be easily managed and updated without altering the core application logic. This design choice enhances maintainability and flexibility, making it easier to adapt to changes in configuration requirements.
