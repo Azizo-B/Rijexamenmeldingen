@@ -18,7 +18,11 @@ from ..models.sbat import (
     SbatRequestRead,
 )
 from ..models.settings import Settings
-from ..utils import send_discord_message_with_role_mention, send_email, send_telegram_message_to_all
+from ..utils import (
+    send_discord_message_with_role_mention,
+    send_email,
+    send_telegram_message_to_all,
+)
 
 
 class SbatMonitor:
@@ -34,7 +38,9 @@ class SbatMonitor:
         "Accept-Encoding": "gzip, deflate, br",
     }
 
-    def __init__(self, repo: BaseRepository, settings: Settings, config: MonitorConfiguration) -> None:
+    def __init__(
+        self, repo: BaseRepository, settings: Settings, config: MonitorConfiguration
+    ) -> None:
         self.repo: BaseRepository = repo
         self.settings: Settings = settings
 
@@ -59,7 +65,9 @@ class SbatMonitor:
     @config.setter
     def config(self, new_config) -> None:
         if not isinstance(new_config, MonitorConfiguration):
-            raise TypeError("Expected new_config to be an instance of MonitorConfiguration")
+            raise TypeError(
+                "Expected new_config to be an instance of MonitorConfiguration"
+            )
 
         self._config: MonitorConfiguration = new_config
         self.license_types: list[Literal["B", "AM"]] = new_config.license_types
@@ -89,9 +97,13 @@ class SbatMonitor:
         elif task.done():
             exception: BaseException | None = task.exception()
             if exception:
-                self.stopped_due_to = f"SBAT MONITOR STOPPED: Exception occurred: {exception}"
+                self.stopped_due_to = (
+                    f"SBAT MONITOR STOPPED: Exception occurred: {exception}"
+                )
             else:
-                self.stopped_due_to = "SBAT MONITOR STOPPED: Task completed successfully."
+                self.stopped_due_to = (
+                    "SBAT MONITOR STOPPED: Task completed successfully."
+                )
 
         self.last_stopped_at = datetime.now()
         if self.last_started_at:
@@ -101,7 +113,11 @@ class SbatMonitor:
     def status(self) -> MonitorStatus:
         if self.task and not self.task.done():
             current_time: datetime = datetime.now()
-            running_time: timedelta = (current_time - self.last_started_at) if self.last_started_at else timedelta()
+            running_time: timedelta = (
+                (current_time - self.last_started_at)
+                if self.last_started_at
+                else timedelta()
+            )
             total_time_running: timedelta = self.total_time_running + running_time
         else:
             total_time_running: timedelta = self.total_time_running
@@ -120,10 +136,15 @@ class SbatMonitor:
         )
 
     async def authenticate(self) -> str:
-        last_request: SbatRequestRead | None = await self.repo.find_last_sbat_auth_request()
+        last_request: SbatRequestRead | None = (
+            await self.repo.find_last_sbat_auth_request()
+        )
         if last_request:
             try:
-                payload: dict = jwt.decode(last_request.response.get("response_text"), options={"verify_signature": False})
+                payload: dict = jwt.decode(
+                    last_request.response.get("response_text"),
+                    options={"verify_signature": False},
+                )
                 if datetime.now() < datetime.fromtimestamp(payload["exp"]):
                     return last_request.response.get("response_text")
             except (jwt.DecodeError, jwt.InvalidTokenError, jwt.ExpiredSignatureError):
@@ -132,7 +153,10 @@ class SbatMonitor:
         async with httpx.AsyncClient() as client:
             auth_response: httpx.Response = await client.post(
                 self.AUTH_URL,
-                json={"username": self.settings.sbat_username, "password": self.settings.sbat_password},
+                json={
+                    "username": self.settings.sbat_username,
+                    "password": self.settings.sbat_password,
+                },
                 headers=self.STANDARD_HEADERS,
                 timeout=60,
             )
@@ -140,7 +164,11 @@ class SbatMonitor:
         sbat_request = SbatRequestCreate(
             timestamp=datetime.now(UTC),
             request_type="authentication",
-            response={"status_code": auth_response.status_code, "headers": auth_response.headers, "response_text": auth_response.text},
+            response={
+                "status_code": auth_response.status_code,
+                "headers": auth_response.headers,
+                "response_text": auth_response.text,
+            },
             url=self.AUTH_URL,
             email_used=self.settings.sbat_username,
         )
@@ -154,32 +182,48 @@ class SbatMonitor:
 
     async def check_for_time_slots(self) -> NoReturn:
         token: str = await self.authenticate()
-        headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {token}"}
+        headers: dict[str, str] = {
+            **self.STANDARD_HEADERS,
+            "Authorization": f"Bearer {token}",
+        }
 
         while True:
             for license_type in self.license_types:
                 for exam_center_id in self.exam_center_ids:
                     exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
-                    response, request_body = await self._perform_check(headers, license_type, exam_center_id, exam_center_name)
+                    response, request_body = await self._perform_check(
+                        headers, license_type, exam_center_id, exam_center_name
+                    )
 
                     # possible exp of token
                     if self._is_exp_error(response):
-                        headers: dict[str, str] = {**self.STANDARD_HEADERS, "Authorization": f"Bearer {await self.authenticate()}"}
+                        headers: dict[str, str] = {
+                            **self.STANDARD_HEADERS,
+                            "Authorization": f"Bearer {await self.authenticate()}",
+                        }
                         continue
 
                     await self._handle_response(response, request_body)
                     await asyncio.sleep(self.seconds_inbetween)
 
     async def _perform_check(
-        self, headers: dict[str, str], license_type: str, exam_center_id: int, exam_center_name: str
+        self,
+        headers: dict[str, str],
+        license_type: str,
+        exam_center_id: int,
+        exam_center_name: str,
     ) -> tuple[httpx.Response, dict]:
-        print(f"Checking '{exam_center_name}' for new time slots for license type '{license_type}'...")
+        print(
+            f"Checking '{exam_center_name}' for new time slots for license type '{license_type}'..."
+        )
         async with httpx.AsyncClient() as client:
             body: dict = {
                 "examCenterId": exam_center_id,
                 "licenseType": license_type,
                 "examType": "E2",
-                "startDate": datetime.combine(datetime.now().date(), datetime.min.time()).isoformat(),
+                "startDate": datetime.combine(
+                    datetime.now().date(), datetime.min.time()
+                ).isoformat(),
             }
             return (
                 await client.post(
@@ -193,32 +237,50 @@ class SbatMonitor:
 
     def _is_exp_error(self, response: httpx.Response) -> bool:
         www_authenticate: str | None = response.headers.get("WWW-Authenticate")
-        return response.status_code == 401 and www_authenticate and "The token is expired" in www_authenticate
+        return (
+            response.status_code == 401
+            and www_authenticate
+            and "expired" in www_authenticate.lower()
+        )
 
-    async def _handle_response(self, response: httpx.Response, request_body: dict) -> None:
+    async def _handle_response(
+        self, response: httpx.Response, request_body: dict
+    ) -> None:
         license_type: str = request_body.get("licenseType")
         exam_center_id: int = request_body.get("examCenterId")
         exam_center_name: str = EXAM_CENTER_MAP[exam_center_id]
         if response.status_code == 200:
             data: dict = response.json()
-            await self.notify_users_and_update_db(data, exam_center_id, exam_center_name, license_type)
+            await self.notify_users_and_update_db(
+                data, exam_center_id, exam_center_name, license_type
+            )
 
         else:
             sbat_request = SbatRequestCreate(
                 timestamp=datetime.now(UTC),
                 request_type="check_for_time_slots",
                 request_body=request_body,
-                response={"status_code": response.status_code, "headers": response.headers, "response_text": response.text},
+                response={
+                    "status_code": response.status_code,
+                    "headers": response.headers,
+                    "response_text": response.text,
+                },
                 url=self.CHECK_URL,
                 email_used=self.settings.sbat_username,
             )
             await self.repo.create("requests", sbat_request, SbatRequestRead)
 
     async def notify_users_and_update_db(
-        self, time_slots: list[dict], exam_center_id: int, exam_center_name: str, license_type: str
+        self,
+        time_slots: list[dict],
+        exam_center_id: int,
+        exam_center_name: str,
+        license_type: str,
     ) -> None:
         current_time_slots = set()
-        notified_time_slots: set[int] = await self.repo.find_notified_time_slot_ids(exam_center_id, license_type)
+        notified_time_slots: set[int] = await self.repo.find_notified_time_slot_ids(
+            exam_center_id, license_type
+        )
         message: str = ""
 
         for time_slot in time_slots:
@@ -229,11 +291,15 @@ class SbatMonitor:
 
             if exam_id not in notified_time_slots:
 
-                new_time_slot_messag: str = f"{start_time.date()}  {start_time.time()} - {end_time.time()}\n"
+                new_time_slot_messag: str = (
+                    f"{start_time.date()}  {start_time.time()} - {end_time.time()}\n"
+                )
                 if new_time_slot_messag not in message:
                     message += new_time_slot_messag
 
-                found_slot: ExamTimeSlotRead | None = await self.repo.find_one("slots", {"exam_id": exam_id}, ExamTimeSlotRead)
+                found_slot: ExamTimeSlotRead | None = await self.repo.find_one(
+                    "slots", {"exam_id": exam_id}, ExamTimeSlotRead
+                )
                 if found_slot and found_slot.status == "taken":
                     await self.repo.update_time_slot_status(exam_id, "notified")
                 else:
@@ -255,10 +321,22 @@ class SbatMonitor:
                     await self.repo.create("slots", time_slot_to_add, ExamTimeSlotRead)
 
         if message:
-            subject: str = f"New driving exam time slots available for license type '{license_type}' at exam center '{exam_center_name}':"
-            message: str = subject + "\nLink: https://rijbewijs.sbat.be/praktijk/examen/Login \n" + message
-            email_recipients: set[str] = await self.repo.find_all_subscribed_emails(exam_center_id, license_type)
-            telegram_recipients: set[int] = await self.repo.find_all_subscribed_telegram_ids(exam_center_id, license_type)
+            subject: str = (
+                f"New driving exam time slots available for license type '{license_type}' at exam center '{exam_center_name}':"
+            )
+            message: str = (
+                subject
+                + "\nLink: https://rijbewijs.sbat.be/praktijk/examen/Login \n"
+                + message
+            )
+            email_recipients: set[str] = await self.repo.find_all_subscribed_emails(
+                exam_center_id, license_type
+            )
+            telegram_recipients: set[int] = (
+                await self.repo.find_all_subscribed_telegram_ids(
+                    exam_center_id, license_type
+                )
+            )
             send_email(
                 subject,
                 email_recipients,
@@ -275,10 +353,15 @@ class SbatMonitor:
                 f"{exam_center_name} - {license_type}",
                 message,
             )
-            await send_telegram_message_to_all(message, self.settings.telegram_bot_token, telegram_recipients)
+            await send_telegram_message_to_all(
+                message, self.settings.telegram_bot_token, telegram_recipients
+            )
 
         for exam_id in notified_time_slots - current_time_slots:
             await self.repo.update_time_slot_status(exam_id, "taken")
             await self.repo.update_one(
-                "slots", {"exam_id": exam_id, "first_taken_at": None}, {"first_taken_at": datetime.now(UTC)}, ExamTimeSlotRead
+                "slots",
+                {"exam_id": exam_id, "first_taken_at": None},
+                {"first_taken_at": datetime.now(UTC)},
+                ExamTimeSlotRead,
             )
