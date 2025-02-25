@@ -122,6 +122,15 @@ class SbatMonitor:
         else:
             total_time_running: timedelta = self.total_time_running
 
+        stopped_due_to = self.stopped_due_to
+        if self.task:
+            try:
+                self.task.exception()
+            except asyncio.exceptions.InvalidStateError:
+                pass
+            except Exception as e:
+                stopped_due_to = str(e)
+
         return MonitorStatus(
             running=self.task is not None and not self.task.done(),
             seconds_inbetween=self.seconds_inbetween,
@@ -132,7 +141,7 @@ class SbatMonitor:
             first_started_at=self.first_started_at,
             last_started_at=self.last_started_at,
             last_stopped_at=self.last_stopped_at,
-            stopped_due_to=self.stopped_due_to,
+            stopped_due_to=stopped_due_to,
         )
 
     async def authenticate(self) -> str:
