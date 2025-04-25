@@ -298,6 +298,35 @@
         box-shadow: 0 4px 30px rgba(4, 175, 255, 0.1), 0 2px 30px rgba(11, 158, 255, 0.06);
       }
     </style>
+    <style>
+      .popup {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .popup-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+      }
+      #closePopup {
+        margin-top: 10px;
+        padding: 5px 10px;
+        background-color: #333333;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+    </style>
   </head>
 
   <body>
@@ -413,6 +442,23 @@
         </div>
       </div>
     </div>
-    <script src="/assets/js/profile.js"></script>
+    <div id="discontinuationPopup" class="popup">
+      <div class="popup-content">
+        <h2>Service Discontinued</h2>
+        <p>We regret to inform you that this service has been discontinued.</p>
+        <button id="closePopup">Close</button>
+      </div>
+    </div>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const popup = document.getElementById('discontinuationPopup');
+        const closePopupBtn = document.getElementById('closePopup');
+
+        closePopupBtn.addEventListener('click', function() {
+          popup.style.display = 'none';
+        });
+      });
+    </script>
+    <!-- <script src="/assets/js/profile.js"></script> -->
   </body>
 </html>

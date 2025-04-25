@@ -60,6 +60,36 @@
         a.appendChild(r);
       })(window, document, "https://static.hotjar.com/c/hotjar-", ".js?sv=");
     </script>
+    <style>
+      .popup {
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .popup-content {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        text-align: center;
+      }
+      #closePopup {
+        margin-top: 10px;
+        padding: 5px 10px;
+        background-color: #333333;
+        color: white;
+        border: none;
+        border-radius: 3px;
+        cursor: pointer;
+      }
+    </style>
+
   </head>
   <body>
     <!-- preloader area start -->
@@ -281,6 +311,14 @@
         </div>
       </div>
     </footer>
+
+    <div id="discontinuationPopup" class="popup" style="display: none;">
+      <div class="popup-content">
+        <h2>Service Discontinued</h2>
+        <p>We regret to inform you that this service has been discontinued.</p>
+        <button id="closePopup">Close</button>
+      </div>
+    </div>
     <!-- footer area end -->
     <!-- back to top area start -->
     <div class="back-to-top">
@@ -293,6 +331,22 @@
     <!-- main js  -->
     <script src="assets/js/main.js"></script>
     <script src="assets/js/nav.js"></script>
-    <script src="assets/js/login.js"></script>
+    <!-- <script src="assets/js/login.js"></script> -->
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        const signInBtn = document.getElementById('signInBtn');
+        const popup = document.getElementById('discontinuationPopup');
+        const closePopupBtn = document.getElementById('closePopup');
+
+        signInBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          popup.style.display = 'flex';
+        });
+
+        closePopupBtn.addEventListener('click', function() {
+          popup.style.display = 'none';
+        });
+      });
+    </script>
   </body>
 </html>
