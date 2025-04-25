@@ -4,10 +4,6 @@
 
 The **SBAT Monitoring System** is a Python API designed to monitor and notify users of available driving exam time slots from the SBAT API. The system periodically checks for new available time slots and sends notifications via email and Telegram when new slots open up. It also tracks the total runtime and provides status updates on the monitoring process.
 
-[Watch the Demo Video](https://storage.googleapis.com/random-data-bucket/SBAT-monitoring.mp4)
-
-**Note**: The demo video may be based on an earlier version of the system and could be outdated. For the most up-to-date information, please refer to the documentation or check the API itself.
-
 ## Table of Contents
 
 - [Getting Started](#getting-started)
@@ -135,13 +131,6 @@ Here’s an example of how you might configure the `MonitorConfiguration`:
 
   So, instead of pushing the limits, I stuck to a more straightforward approach that stays within the guidelines and keeps things fair for everyone.
 
-- ### Cost-Effective and Efficient Hosting
-
-  The API is hosted on a Google Cloud E2 micro instance, which falls under Google's free tier. This allows the API to run 24/7 without incurring costs, making it a highly cost-effective solution. The instance is configured with HTTPS, ensuring secure communication between clients and the server.
-
-  The database used is MongoDB, which is also hosted under a free tier plan. This setup allows for efficient storage and retrieval of user data, monitoring logs, and other relevant information without additional costs.
-
-  The frontend is hosted using GitHub Pages, which is also free, providing a simple and efficient way to manage and deploy the user interface.
 
 - ### Payment Processing with Stripe
 
@@ -151,10 +140,3 @@ Here’s an example of how you might configure the `MonitorConfiguration`:
 
   The Telegram bot, used for sending notifications, is integrated into the system via webhooks. This ensures that messages are sent and received in real-time, providing users with timely updates on available driving exam slots. Webhooks are also used to handle events from Stripe, ensuring that subscription statuses and payment events are processed immediately.
 
-- ### Singleton Pattern for SbatMonitor
-
-  The `SbatMonitor` class is designed as a singleton. This design choice ensures that only one instance of the monitor is created and shared across the application. This pattern prevents multiple instances from running concurrently, which could lead to conflicting operations. It also simplifies the management and tracking of the monitoring task's state, providing a consistent and controlled environment.
-
-- ### BaseSettings Configuration
-
-  The application uses a `BaseSettings` class for configuration management. This class centralizes the configuration settings, such as SBAT API credentials and notification preferences, in one place. By using `BaseSettings`, the configuration can be easily managed and updated without altering the core application logic. This design choice enhances maintainability and flexibility, making it easier to adapt to changes in configuration requirements.
